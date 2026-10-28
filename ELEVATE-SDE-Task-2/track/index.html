@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Track Application · CredVault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../" data-page="track">
+<header id="site-header"></header>
+<main>
+
+<div class="narrow">
+  <h1>Track Application</h1>
+  <p class="lede">Enter the Application ID you received after submitting your request.</p>
+  <form id="form" class="panel" novalidate>
+    <div class="field"><label for="appId">Application ID</label>
+      <input type="text" id="appId" placeholder="#APP-0001" autocomplete="off"><p class="err" id="err"></p></div>
+    <button class="btn" type="submit">Track</button>
+  </form>
+  <div id="out" role="status" aria-live="polite"></div>
+  <p class="note">Demo IDs: APP-0001 (Approved), APP-0002 (Pending), APP-0004 (Rejected)</p>
+</div>
+
+</main>
+<footer id="site-footer"></footer>
+<script src="../assets/app.js"></script>
+<script>
+
+const input = document.getElementById("appId"), err = document.getElementById("err"), out = document.getElementById("out");
+function run() {
+  out.innerHTML = ""; err.textContent = ""; input.classList.remove("invalid");
+  const q = input.value.trim();
+  if (!q) { err.textContent = "Enter an Application ID."; input.classList.add("invalid"); return; }
+  const a = CV.findApp(q);
+  if (!a) { out.innerHTML = '<div class="result bad">Application not found. Check the ID and try again.</div>'; return; }
+  out.innerHTML = '<div class="result"><h2>' + CV.esc("#" + a.id) + '</h2><dl class="details">' +
+    '<dt>Name</dt><dd>' + CV.esc(a.name) + '</dd>' +
+    '<dt>Status</dt><dd>' + CV.badge(a.status) + '</dd>' +
+    '<dt>Submission date</dt><dd>' + CV.fmt(a.date) + '</dd>' +
+    (a.certId ? '<dt>Certificate ID</dt><dd>' + CV.esc(a.certId) + '</dd>' : '') +
+    '</dl></div>';
+}
+document.getElementById("form").addEventListener("submit", e => { e.preventDefault(); run(); });
+const pre = new URLSearchParams(location.search).get("id");
+if (pre) { input.value = pre; run(); }
+
+</script>
+</body>
+</html>

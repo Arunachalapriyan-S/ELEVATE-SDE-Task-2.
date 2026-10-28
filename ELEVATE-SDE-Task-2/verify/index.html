@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Verify Certificate · CredVault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body data-root="../" data-page="verify">
+<header id="site-header"></header>
+<main>
+
+<div class="narrow">
+  <h1>Verify Certificate</h1>
+  <p class="lede">Enter a Certificate ID to check that it is genuine and still valid.</p>
+  <form id="form" class="panel" novalidate>
+    <div class="field"><label for="certId">Certificate ID</label>
+      <input type="text" id="certId" placeholder="CERT-1001" autocomplete="off"><p class="err" id="err"></p></div>
+    <button class="btn" type="submit">Verify</button>
+  </form>
+  <div id="out" role="status" aria-live="polite"></div>
+  <p class="note">Demo IDs: CERT-1001 (Valid), CERT-1003 (Revoked)</p>
+</div>
+
+</main>
+<footer id="site-footer"></footer>
+<script src="../assets/app.js"></script>
+<script>
+
+const input = document.getElementById("certId"), err = document.getElementById("err"), out = document.getElementById("out");
+document.getElementById("form").addEventListener("submit", e => {
+  e.preventDefault();
+  out.innerHTML = ""; err.textContent = ""; input.classList.remove("invalid");
+  const q = input.value.trim();
+  if (!q) { err.textContent = "Enter a Certificate ID."; input.classList.add("invalid"); return; }
+  const c = CV.findCert(q);
+  if (!c) { out.innerHTML = '<div class="result bad">Certificate not found. Status: ' + CV.badge("Not Found") + '</div>'; return; }
+  out.innerHTML = '<div class="result ' + (c.status === "Valid" ? "ok" : "bad") + '" style="font-weight:400"><h2>' + CV.esc(c.id) + '</h2><dl class="details">' +
+    '<dt>Name</dt><dd>' + CV.esc(c.name) + '</dd>' +
+    '<dt>Phone</dt><dd>' + CV.esc(c.phone) + '</dd>' +
+    '<dt>Issued on</dt><dd>' + CV.fmt(c.issuedOn) + '</dd>' +
+    '<dt>Status</dt><dd>' + CV.badge(c.status) + '</dd></dl></div>';
+});
+
+</script>
+</body>
+</html>
